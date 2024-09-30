@@ -1,0 +1,266 @@
+__________________________________
+-------------------------------------------------------
+# Create Venv with C++ and R Capabilities 
+__________________________________
+-------------------------------------------------------
+
+- name: RCyPy
+- Homepage: https://github.com/gavinkress/RCyPy
+- Author: Gavin Kress
+- email: gavinkress@gmail.com
+- Date: 9/30/2024
+- version: 1.0.0
+- readme = RCyPy.md
+- Programming Language(s): Python, C++, R
+- License: MIT License
+- Operating System: OS Independent
+
+
+----------------------------------------------------------------
+## Instructions only - This is not a working script.
+----------------------------------------------------------------
+
+This workflow will ensure your global Python Environment will
+have C++ and R Capabilities complete with pip-tools package
+and dependency management.
+
+It will then create a virtual environment with the same capabilities
+and features. It does all of this without relying on black box
+package managers and version truncation sometimes associated
+with common dependency management solutions like Poetry.
+
+Simply Specify your parameters and Ensure you have the Language compilers 
+at the begginig and follow the quick workflow.
+
+
+## Dependencies: *Manually Install the following*
+------------------------------------------------------------------
+Install R (https://cran.r-project.org/bin/windows/base/),
+Rtools (https://cran.r-project.org/bin/windows/Rtools/rtools44/rtools.html), 
+C++ Build Tools (https://visualstudio.microsoft.com/visual-cpp-build-tools/), # All most recent for ARM, x64, x32
+Rust compiler (https://www.rust-lang.org/tools/install)
+
+## User and System Path/Var Modifications: *Manually Specify* 
+----------------------------------------------------------------------------------
+```
+
+### Global Env
+$GlobalEnv = "~\" 
+
+### Target Venv Path
+$VenvPath = "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\.env\.virtualenvs\RCyPyVenv"
+
+### All environments with needed dependencies
+$Venvs = @(
+    "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\.env\.virtualenvs\GeneralPythonVenv\" 
+    "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\_Env configurations and Package managers\GeneralPythonVenv\"
+)
+
+### System
+
+setx PATH `
+	"%path%; `
+	C:\Program Files\R;C:\Program Files\R\R-4.4.1; `
+	C:\Program Files\R\R-4.4.1\bin; `
+	C:\Program Files\R\R-4.4.1\bin\x64; `
+	C:\Rtools\bin;C:\Rtools\mingw_64\bin" /m
+
+setx R_HOME "C:\Program Files\R\R-4.4.1" /m
+
+### User
+
+setx PATH `
+	"%path%; `
+	C:\Program Files\R;C:\Program Files\R\R-4.4.1; `
+	C:\Program Files\R\R-4.4.1\bin; `
+	C:\Program Files\R\R-4.4.1\bin\x64; `
+	C:\Rtools\bin;C:\Rtools\mingw_64\bin" 
+
+setx R_HOME "C:\Program Files\R\R-4.4.1"
+setx R_PROFILE_USER "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\.env\R\.Rprofile"
+
+$textinput1 = @"
+options("digits.secs"=3)            # show sub-second time stamps
+r <- getOption("repos")             # hard code the US repo for CRAN
+r["CRAN"] <- "http://cran.us.r-project.org"
+options(repos = r)
+rm(r)
+"@
+
+
+### Personal Specs
+echo $textinput1 >> "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\.env\R\.Rprofile"
+$($VenvPrompt) = "."
+
+```
+---------------------------
+
+-+++--RESTART Machine--+++-
+
+----------------------------
+
+## R packages
+---------------------
+```
+
+cd $($GlobalEnv)
+R.exe
+install.packages('Rcpp',dependencies = TRUE)
+install.packages("Rcmdr" ,dependencies = TRUE)
+
+```
+## Global Python Dependency Packages
+-----------------------------------------------------
+```
+
+pip install --update pip
+pip install --upgrade setuptools
+pip install --upgrade pip-tools
+pip install --upgrade merge-requirements
+pip install --upgrade flask
+pip install --upgrade flake8
+pip install --upgrade build
+> pip freeze | %{$_.split('==')[0]} | %{pip install --upgrade $_}
+
+```
+## Global Python C++ & R Interpreter Packages
+---------------------------------------------------------------
+```
+
+pip install --upgrade cffi --verbose
+pip install --upgrade cython --verbose
+pip install --upgrade libcpp --verbose
+pip install --upgrade rpy2[test] --verbose
+pip install --upgrade rpy2[all] --verbose
+> pip freeze | %{$_.split('==')[0]} | %{pip install --upgrade $_}
+
+```
+## Verify
+------------
+```
+
+pytest tests/
+pytest --cov=rpy2.rinterface_lib \
+       --cov=rpy2.rinterface \
+       --cov=rpy2.ipython \
+       --cov=rpy2.robject \
+       tests
+
+```
+
+## Preparing Image
+--------------------------
+```
+
+### build with all dependencies
+pip cache purge
+pip freeze > ./dist/requirements.txt
+pip freeze > ./dist/requirements.in
+pip-compile ./dist/requirements.in --output-file ./dist/requirements.txt ./dist/requirements.in
+
+### update clear cache rebuild
+pip install -r ./dist/requirements.txt --upgrade
+pip cache purge
+pip freeze > ./dist/requirements.in
+pip-compile ./dist/requirements.in --output-file ./dist/requirements.txt ./dist/requirements.in
+pip-sync requirements.txt
+
+
+### download and tar the dependencies
+mkdir ./dist/dependencies
+pip download -r requirements.txt -d "./dist/dependencies"
+tar cvfz dependencies.tar.gz ./dist/dependencies
+
+
+### write meta data file
+$recstext = Get-Content ./dist/requirements.txt  -Raw 
+$textinput2 = @"
+[build-system]
+requires = ["$recstext"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "RCyPy_gavinkress"
+version = "1.0.0"
+authors = [
+  { name="Gavin Kress", email="gavinkress@gmail.com" },
+]
+description = "Global RCyPy Environment Metadata"
+readme = "RCyPy.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/gavinkress/RCyPy"
+"@
+
+echo $textinput2 >> ./dist/RCyPyGlobal.toml
+py -m build --outdir ./dist/ --sdist --wheel
+
+```
+## Create Venv 
+-----------------------
+```
+
+python -m venv $VenvPath  --system-site-packages   --copies --upgrade --prompt $($VenvPrompt) --upgrade-deps 
+
+ 
+```
+## Verify build, add dependencies
+--------------------------------------------
+```
+
+### Verify
+echo "Make sure your venv is listed below"
+echo lsvirtualenv
+echo "remove unused or note to do so after getting the requirements.txt here"
+
+### Ensure Each location has a compatible requirements.txt
+
+for ( $index = 0; $index -lt $Venvs.count; $index++)
+{
+
+cd $($Venvs[$index])
+./Scripts/activate
+pip install --update pip
+pip install --upgrade setuptools
+pip install --upgrade pip-tools
+pip install --upgrade merge-requirements
+
+freeze > requirements.txt
+Copy-Item -Path ./requirements.txt -Destination ./requirements.in
+pip-compile requirements.in --output-file requirements.txt requirements.in
+deactivate
+}
+
+cd $($VenvPath)
+./Scripts/activate
+pip install --update pip
+pip install --upgrade setuptools
+pip install --upgrade pip-tools
+pip install --upgrade merge-requirements
+
+### merge base dependencies with others you need
+merge_requirements $("$GlobalEnv/dist/requirements.txt") $("$Venvs[0]/requirements.txt") create new file $("$VenvPath/dist/requirements_part.txt")
+
+for ( $index = 1; $index -lt $Venvs.count-1; $index++)
+{
+merge_requirements "./dist/requirements_part.txt" $("$Venvs[$index]requirements.txt") create new file $("$VenvPath/dist/requirements_part.txt")
+}
+
+merge_requirements "./dist/requirements_part.txt" $("$Venvs[$Venvs.count]/requirements.txt") create new file $("$VenvPath/dist/requirements_presetup.txt")
+
+### Build and sync
+Copy-Item -Path ./dist/requirements_presetup.txt -Destination ./dist/requirements.in
+pip-compile requirements.in --output-file requirements.txt requirements.in
+pip-sync requirements.txt
+
+```
+-----------------------------------------------------------------------------------------------------------------------------
+## Make sure all your workspace and user settings are updated in vs/vscode
+## and save these instructions in the venv as .md for best view
+-----------------------------------------------------------------------------------------------------------------------------
