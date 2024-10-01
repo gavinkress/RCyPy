@@ -56,28 +56,28 @@ $Venvs = @(
     "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\_Env configurations and Package managers\GeneralPythonVenv\"
 )
 
-### System  *NOTE: MANUALLY SET PATHS TO AVOID PROVISION BLENDING, AVOID CLI*
+### System
 
-setx Path2 `
-	"%Path%; `
+setx PATH `
+	"%path%; `
 	C:\Program Files\R;C:\Program Files\R\R-4.4.1; `
 	C:\Program Files\R\R-4.4.1\bin; `
 	C:\Program Files\R\R-4.4.1\bin\x64; `
 	C:\Rtools\bin;C:\Rtools\mingw_64\bin" /m
 
-setx R_HOME2 "C:\Program Files\R\R-4.4.1" /m
+setx R_HOME "C:\Program Files\R\R-4.4.1" /m
 
 ### User
 
-setx Path2 `
-	"%Path%; `
+setx PATH `
+	"%path%; `
 	C:\Program Files\R;C:\Program Files\R\R-4.4.1; `
 	C:\Program Files\R\R-4.4.1\bin; `
 	C:\Program Files\R\R-4.4.1\bin\x64; `
-	C:\Rtools\bin;C:\Rtools\mingw_64\bin;" 
+	C:\Rtools\bin;C:\Rtools\mingw_64\bin" 
 
-setx R_HOME2 "C:\Program Files\R\R-4.4.1"
-setx R_PROFILE_USER2 "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\.env\R\.Rprofile"
+setx R_HOME "C:\Program Files\R\R-4.4.1"
+setx R_PROFILE_USER "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\.env\R\.Rprofile"
 
 $textinput1 = @"
 options("digits.secs"=3)            # show sub-second time stamps

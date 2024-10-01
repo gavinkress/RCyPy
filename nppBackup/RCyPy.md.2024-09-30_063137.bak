@@ -4,7 +4,7 @@ __________________________________
 __________________________________
 -------------------------------------------------------
 
-- name: RCyPy
+- Name: RCyPy
 - Homepage: https://github.com/gavinkress/RCyPy
 - Author: Gavin Kress
 - email: gavinkress@gmail.com
@@ -17,7 +17,7 @@ __________________________________
 
 
 ----------------------------------------------------------------
-## Instructions only - This is not a working script.
+## Instructions only - This is meant to be followed
 ----------------------------------------------------------------
 
 This workflow will ensure your global Python Environment will
@@ -29,7 +29,7 @@ and features. It does all of this without relying on black box
 package managers and version truncation sometimes associated
 with common dependency management solutions like Poetry.
 
-Simply Specify your parameters and Ensure you have the Language compilers 
+Simply specify your parameters and Ensure you have the Language compilers 
 at the begginig and follow the quick workflow.
 
 
@@ -49,8 +49,8 @@ $GlobalEnv = "~\"
 
 ### Target Venv Path
 $VenvPath = "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\.env\.virtualenvs\RCyPyVenv"
-
-### All environments with needed dependencies
+$RConfigpath = "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\.env\R\.Rprofile"
+### All environments with needed dependencies to add to new venv
 $Venvs = @(
     "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\.env\.virtualenvs\GeneralPythonVenv\" 
     "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\_Env configurations and Package managers\GeneralPythonVenv\"
@@ -89,13 +89,14 @@ rm(r)
 
 
 ### Personal Specs
-echo $textinput1 >> "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\.env\R\.Rprofile"
-$($VenvPrompt) = "."
+Remove-Item $RConfigpath
+echo $textinput1 >> $RConfigpath
+$VenvPrompt = "."
 
 ```
 ---------------------------
 
--+++--RESTART Machine--+++-
+# ++--RESTART Machine--++
 
 ----------------------------
 
@@ -103,10 +104,14 @@ $($VenvPrompt) = "."
 ---------------------
 ```
 
-cd $($GlobalEnv)
+cd $GlobalEnv
 R.exe
+
+
 install.packages('Rcpp',dependencies = TRUE)
 install.packages("Rcmdr" ,dependencies = TRUE)
+
+q()
 
 ```
 ## Global Python Dependency Packages
@@ -120,7 +125,7 @@ pip install --upgrade merge-requirements
 pip install --upgrade flask
 pip install --upgrade flake8
 pip install --upgrade build
-> pip freeze | %{$_.split('==')[0]} | %{pip install --upgrade $_}
+pip freeze | %{$_.split('==')[0]} | %{pip install --upgrade $_}
 
 ```
 ## Global Python C++ & R Interpreter Packages

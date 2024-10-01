@@ -4,7 +4,7 @@ __________________________________
 __________________________________
 -------------------------------------------------------
 
-- name: RCyPy
+- Name: RCyPy
 - Homepage: https://github.com/gavinkress/RCyPy
 - Author: Gavin Kress
 - email: gavinkress@gmail.com
@@ -17,7 +17,7 @@ __________________________________
 
 
 ----------------------------------------------------------------
-## Instructions only - This is not a working script.
+## Instructions only - This is meant to be followed
 ----------------------------------------------------------------
 
 This workflow will ensure your global Python Environment will
@@ -29,16 +29,26 @@ and features. It does all of this without relying on black box
 package managers and version truncation sometimes associated
 with common dependency management solutions like Poetry.
 
-Simply Specify your parameters and Ensure you have the Language compilers 
+Simply specify your parameters and Ensure you have the Language compilers 
 at the begginig and follow the quick workflow.
 
 
 ## Dependencies: *Manually Install the following*
 ------------------------------------------------------------------
-Install R (https://cran.r-project.org/bin/windows/base/),
-Rtools (https://cran.r-project.org/bin/windows/Rtools/rtools44/rtools.html), 
-C++ Build Tools (https://visualstudio.microsoft.com/visual-cpp-build-tools/), # All most recent for ARM, x64, x32
-Rust compiler (https://www.rust-lang.org/tools/install)
+- Install R (https://cran.r-project.org/bin/windows/base/)
+
+
+- Install C++/.NET Build Tools (https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+ 
+- Install Rtools (https://cran.r-project.org/bin/windows/Rtools/rtools44/rtools.html) 
+
+-- Its easiest to keep all versions supported through the VS Installer, since many libraries and applications require legacy builds, you could get by with installing only when you get the error(s):
+
+---distutils.errors.DistutilsExecError: command failed with exit code 1181
+---LINK : fatal error LNK1181: cannot open input file
+
+- Rust compiler (https://www.rust-lang.org/tools/install)
+
 
 ## User and System Path/Var Modifications: *Manually Specify* 
 ----------------------------------------------------------------------------------
@@ -49,8 +59,8 @@ $GlobalEnv = "~\"
 
 ### Target Venv Path
 $VenvPath = "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\.env\.virtualenvs\RCyPyVenv"
-
-### All environments with needed dependencies
+$RConfigpath = "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\.env\R\.Rprofile"
+### All environments with needed dependencies to add to new venv
 $Venvs = @(
     "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\.env\.virtualenvs\GeneralPythonVenv\" 
     "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\_Env configurations and Package managers\GeneralPythonVenv\"
@@ -89,13 +99,14 @@ rm(r)
 
 
 ### Personal Specs
-echo $textinput1 >> "C:\Users\gavin\OneDrive\Centralized Programming Heirarchy\.env\R\.Rprofile"
-$($VenvPrompt) = "."
+Remove-Item $RConfigpath
+echo $textinput1 >> $RConfigpath
+$VenvPrompt = "."
 
 ```
 ---------------------------
 
--+++--RESTART Machine--+++-
+#    RESTART Machine
 
 ----------------------------
 
@@ -103,10 +114,14 @@ $($VenvPrompt) = "."
 ---------------------
 ```
 
-cd $($GlobalEnv)
+cd $GlobalEnv
 R.exe
+
+
 install.packages('Rcpp',dependencies = TRUE)
 install.packages("Rcmdr" ,dependencies = TRUE)
+
+q()
 
 ```
 ## Global Python Dependency Packages
@@ -120,7 +135,7 @@ pip install --upgrade merge-requirements
 pip install --upgrade flask
 pip install --upgrade flake8
 pip install --upgrade build
-> pip freeze | %{$_.split('==')[0]} | %{pip install --upgrade $_}
+pip freeze | %{$_.split('==')[0]} | %{pip install --upgrade $_}
 
 ```
 ## Global Python C++ & R Interpreter Packages
@@ -132,7 +147,7 @@ pip install --upgrade cython --verbose
 pip install --upgrade libcpp --verbose
 pip install --upgrade rpy2[test] --verbose
 pip install --upgrade rpy2[all] --verbose
-> pip freeze | %{$_.split('==')[0]} | %{pip install --upgrade $_}
+pip freeze | %{$_.split('==')[0]} | %{pip install --upgrade $_}
 
 ```
 ## Verify
