@@ -60,6 +60,8 @@ Parameters:
 - - - distutils.errors.DistutilsExecError: command failed with exit code 1181
 - - - LINK : fatal error LNK1181: cannot open input file (for certain versions on non-UNIX OS we need to build some .lib files manually)
 
+- [Optimize and Repair User and System Paths and Variables](https://github.com/gavinkress/Repair-Broken-Envs_Path)
+
 ## User and System Path and Variable Modifications: *Manually Specify then restart shell* 
 -----------------------------------------------------------------------------------------
 ```powershell
@@ -110,68 +112,14 @@ function WriteOutputPretty {
 	echo ""
 	
 }
+WriteOutputPretty -currentmsg "Attention!"
+WriteOutputPretty -currentmsg "You should Repair, Optimize, and Build User and System Paths and Variables"
+WriteOutputPretty -currentmsg "See GitHub.com/gavnnkress/Repair-Broken_Envs_Path"
 
-WriteOutputPretty -currentmsg "Building path additions"
+
 Remove-Item $RConfigpath
 echo $Rprofiletextinput  >> $RConfigpath
 
-$path_adds = @( 
-	"C:\Program Files\R\", 
-	"C:\Program Files\R\R-4.4.1\", 
-	"C:\Program Files\R\R-4.4.1\bin\", 
-	"C:\Program Files\R\R-4.4.1\bin\x64\", 
-	"C:\rtools44\", 
-	"C:\rtools44\mingw_64\", 
-	"C:\rtools44\mingw_64\bin\", 
-	"C:\rtools44\usr\", 
-	"C:\rtools44\usr\bin\", 
-	"C:\rtools44\ucrt64\",
-	"C:\rtools44\ucrt64\bin\",
-	"C:\rtools44\x86_64-w64-mingw32.static.posix\", 
-	"C:\rtools44\x86_64-w64-mingw32.static.posix\bin\", 
-	"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\"
-	"$env:USERPROFILE\OneDrive\Centralized Programming Heirarchy\.env\.virtualenvs\RCyPyVenv\Scripts\"
-)
-
-
-$MSVC_versions = @(ls "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\" | %{$_.Name} | sort -Descending)
-foreach ($MSVC_version in $MSVC_versions)
-{
-	$path_adds += "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\$MSVC_version\bin"
-	$path_adds += "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\$MSVC_version\bin\Hostx86\x86\"
-	$path_adds += "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\$MSVC_version\bin\Hostx86\x64\"
-	$path_adds += "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\$MSVC_version\bin\Hostx64\x86\"
-	$path_adds += "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\$MSVC_version\bin\Hostx64\x64\"
-}
-
-WriteOutputPretty -currentmsg "Path additions built successfully"
-
-foreach ($scope in @("User", "Machine"))
-{
-	WriteOutputPretty -currentmsg "Setting $scope Path and Variables"
-	
-	$currentpath = [System.Environment]::GetEnvironmentVariable("Path", $scope)
-	$currentpath_arr = $currentpath_user -split ";"
-	$newpath = $currentpath_arr + $path_adds
-	$newpath = $newpath | Where-Object { $_ -ne "" } 
-	for ( $index = 0; $index -lt $newpath.count; $index++)
-	{
-		if ($newpath[$index] -notmatch "\\$") {
-			$newpath[$index] += "\"
-		}
-	}
-
-	$newpath_unique = $newpath | Select-Object -Unique
-	$newpath_str = $newpath_unique -join ";"
-	
-	[System.Environment]::SetEnvironmentVariable("Path", $newpath_str, $scope)
-	[System.Environment]::SetEnvironmentVariable("R_HOME", "C:\Program Files\R\R-4.4.1\", $scope)
-	[System.Environment]::SetEnvironmentVariable("R_PROFILE_USER", $RConfigpath , $scope)
-	[System.Environment]::SetEnvironmentVariable("RTOOLS40_HOME", "C:\rtools44", $scope)
-	[System.Environment]::SetEnvironmentVariable("RTOOLS44_HOME", "C:\rtools44", $scope)
-	
-	WriteOutputPretty -currentmsg "$scope Path and Variables Set Successfully"
-}
 
 ```
 
