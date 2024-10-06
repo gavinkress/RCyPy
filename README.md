@@ -130,6 +130,7 @@ $path_adds = @(
 	"C:\rtools44\x86_64-w64-mingw32.static.posix\", 
 	"C:\rtools44\x86_64-w64-mingw32.static.posix\bin\", 
 	"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\"
+	"$env:USERPROFILE\OneDrive\Centralized Programming Heirarchy\.env\.virtualenvs\RCyPyVenv\Scripts\"
 )
 
 
@@ -335,45 +336,48 @@ function UpdateCreateDist {
 
 	mkdir ./dist/dependencies/
 	pip download -r requirements.txt -d ./dist/dependencies/
-	tar cvfz dependencies.tar.gz ./dist/dependencies/
-
+	tar -czvf ./dist/dependencies_whls.tar.gz --exclude=./dist/dependencies_whls.tar.gz ./dist/dependencies/*.whl
+ 
 	$recstext = Get-Content ./dist/requirements.txt 
 	$recstext = @($recstext -split '`n' | Where-Object{ $_ -match "^.*==.*$"})
-	$recstext = $recstext | %{$broken = $_ -split '=='; $broken[0]} 
+	$recstext = $recstext | %{$broken = $_ -split '=='; '"{0}"' -f $broken[0]} 
 	$recstext  = $recstext -join ", " 
-
+ 
 	$metadatain = @"
 	[build-system]
 	requires = [$recstext]
-	build-backend = 'setuptools.build_meta'
-
-	[project]
-	name = 'RCyPy_gavinkress'
+ 	[project]
+	name = 'RCyPy'
 	version = '1.0.0'
-	authors = [
-	{ name='Gavin Kress', email='gavinkress@gmail.com'}
-	]
-	description = 'Global RCyPy Environment Metadata'
+	authors = [{ name='Gavin Kress', email='gavinkress@gmail.com'}]
+	description = 'RCyPy Environment'
 	readme = 'RCyPy.md'
-	requires-python = '>=3.11'
+	requires-python = '>=3.12'
 	classifiers = [
 	'Programming Language :: Python :: 3',
 	'License :: OSI Approved :: MIT License',
 	'Operating System :: OS Independent'
 	]
-
+# 
 	[project.urls]
 	Homepage = 'https://github.com/gavinkress/RCyPy'
 	"@
 
 
-	Remove-Item ./pyproject.toml
-	$metadatain | Out-File -FilePath ./pyproject.toml -Encoding utf8
+	Remove-Item ./dist/pyproject.toml
+	$metadatain | Out-File -FilePath ./dist/pyproject.toml -Encoding utf8
+	cd ./dist/
 	python -m build
 	echo "Update Complete and Distribution Wheels Created"
+	cd ./..
 }
 
 ### Core Packages
+pip install pipx
+pipx install Poetry
+pipx ensurepath
+pipx upgrade poetry
+
 function InstallCorePackages {
 	echo "Installing Core Packages...."
 	$corepkgs = @(
